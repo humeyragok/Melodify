@@ -1,9 +1,10 @@
 'use client'
 
-import { SessionProvider, useSession, signOut } from 'next-auth/react'
+import { SessionProvider, useSession } from 'next-auth/react'
 import { useRouter, useParams } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import Player from '@/components/Player'
+import Sidebar from '@/components/Sidebar'
 import usePlayerStore from '@/store/usePlayerStore'
 
 function PlaylistDetailContent() {
@@ -44,6 +45,24 @@ function PlaylistDetailContent() {
     }
   }
 
+  const handleRemoveSong = async (songId) => {
+    if (!confirm('Bu şarkıyı playlist\'ten kaldırmak istediğinize emin misiniz?')) {
+      return
+    }
+
+    try {
+      const res = await fetch(`/api/playlists/${params.id}/songs/${songId}`, {
+        method: 'DELETE'
+      })
+
+      if (res.ok) {
+        fetchPlaylist()
+      }
+    } catch (error) {
+      console.error(error)
+    }
+  }
+
   if (status === 'loading' || loading) {
     return (
       <div className="min-h-screen bg-black flex items-center justify-center">
@@ -58,51 +77,7 @@ function PlaylistDetailContent() {
 
   return (
     <div className="min-h-screen bg-black">
-      <aside className="fixed left-0 top-0 h-full w-64 bg-black border-r border-gray-800 p-6">
-        <div className="flex items-center gap-2 mb-8">
-          <div className="w-10 h-10 bg-green-500 rounded-full flex items-center justify-center">
-            <span className="text-2xl">🎵</span>
-          </div>
-          <h1 className="text-white text-2xl font-bold">Melodify</h1>
-        </div>
-
-        <nav className="space-y-4">
-          <a href="/home" className="flex items-center gap-3 text-gray-400 hover:text-white transition">
-            <span className="text-2xl">🏠</span>
-            <span className="font-semibold">Ana Sayfa</span>
-          </a>
-          <a href="/search" className="flex items-center gap-3 text-gray-400 hover:text-white transition">
-            <span className="text-2xl">🔍</span>
-            <span className="font-semibold">Ara</span>
-          </a>
-          <a href="/library" className="flex items-center gap-3 text-white hover:text-green-500 transition">
-            <span className="text-2xl">📚</span>
-            <span className="font-semibold">Kitaplığın</span>
-          </a>
-          <a href="/liked" className="flex items-center gap-3 text-gray-400 hover:text-white transition">
-            <span className="text-2xl">❤️</span>
-            <span className="font-semibold">Beğenilenler</span>
-          </a>
-          <a href="/admin" className="flex items-center gap-3 text-gray-400 hover:text-white transition">
-            <span className="text-2xl">⚙️</span>
-            <span className="font-semibold">Admin</span>
-          </a>
-        </nav>
-
-        <div className="absolute bottom-6 left-6 right-6">
-          <div className="bg-gray-900 rounded-lg p-4 mb-4">
-            <p className="text-white text-sm mb-2">👋 Hoş geldin</p>
-            <p className="text-green-500 font-semibold">{session?.user?.name}</p>
-            <p className="text-gray-400 text-xs">{session?.user?.email}</p>
-          </div>
-          <button
-            onClick={() => signOut({ callbackUrl: '/' })}
-            className="w-full bg-white text-black hover:bg-gray-200 font-semibold py-2 rounded-full transition"
-          >
-            Çıkış Yap
-          </button>
-        </div>
-      </aside>
+      <Sidebar />
 
       <main className="ml-64 pb-32">
         <div className="bg-gradient-to-b from-blue-900 to-black px-8 py-12">
@@ -144,18 +119,34 @@ function PlaylistDetailContent() {
                 {songs.map((song, index) => (
                   <div
                     key={song.id}
-                    onClick={() => setSong(song, songs, index)}
-                    className="bg-gray-900 hover:bg-gray-800 rounded-lg p-4 cursor-pointer transition"
+                    className="bg-gray-900 hover:bg-gray-800 rounded-lg p-4 cursor-pointer transition relative group"
                   >
-                    <div className="w-full aspect-square bg-gray-700 rounded-lg mb-3 overflow-hidden">
+                    <div 
+                      onClick={() => setSong(song, songs, index)}
+                      className="w-full aspect-square bg-gray-700 rounded-lg mb-3 overflow-hidden"
+                    >
                       {song.coverImage ? (
                         <img src={song.coverImage} alt={song.title} className="w-full h-full object-cover" />
                       ) : (
                         <div className="w-full h-full flex items-center justify-center text-4xl">🎵</div>
                       )}
                     </div>
-                    <h4 className="text-white font-semibold mb-1 truncate">{song.title}</h4>
-                    <p className="text-gray-400 text-sm truncate">{song.artist?.name}</p>
+                    
+                    <div onClick={() => setSong(song, songs, index)}>
+                      <h4 className="text-white font-semibold mb-1 truncate">{song.title}</h4>
+                      <p className="text-gray-400 text-sm truncate">{song.artist?.name}</p>
+                    </div>
+
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        handleRemoveSong(song.id)
+                      }}
+                      className="absolute top-2 right-2 bg-red-500 text-white w-8 h-8 rounded-full opacity-0 group-hover:opacity-100 transition hover:bg-red-600 flex items-center justify-center"
+                      title="Playlist'ten kaldır"
+                    >
+                      ✕
+                    </button>
                   </div>
                 ))}
               </div>

@@ -1,9 +1,10 @@
 'use client'
 
-import { SessionProvider, useSession, signOut } from 'next-auth/react'
+import { SessionProvider, useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import Player from '@/components/Player'
+import Sidebar from '@/components/Sidebar'
 import usePlayerStore from '@/store/usePlayerStore'
 
 function LikedContent() {
@@ -52,47 +53,7 @@ function LikedContent() {
 
   return (
     <div className="min-h-screen bg-black">
-      <aside className="fixed left-0 top-0 h-full w-64 bg-black border-r border-gray-800 p-6">
-        <div className="flex items-center gap-2 mb-8">
-          <div className="w-10 h-10 bg-green-500 rounded-full flex items-center justify-center">
-            <span className="text-2xl">🎵</span>
-          </div>
-          <h1 className="text-white text-2xl font-bold">Melodify</h1>
-        </div>
-
-        <nav className="space-y-4">
-          <a href="/home" className="flex items-center gap-3 text-gray-400 hover:text-white transition">
-            <span className="text-2xl">🏠</span>
-            <span className="font-semibold">Ana Sayfa</span>
-          </a>
-          <a href="/search" className="flex items-center gap-3 text-gray-400 hover:text-white transition">
-            <span className="text-2xl">🔍</span>
-            <span className="font-semibold">Ara</span>
-          </a>
-          <a href="/liked" className="flex items-center gap-3 text-white hover:text-green-500 transition">
-            <span className="text-2xl">❤️</span>
-            <span className="font-semibold">Beğenilenler</span>
-          </a>
-          <a href="/admin" className="flex items-center gap-3 text-gray-400 hover:text-white transition">
-            <span className="text-2xl">⚙️</span>
-            <span className="font-semibold">Admin</span>
-          </a>
-        </nav>
-
-        <div className="absolute bottom-6 left-6 right-6">
-          <div className="bg-gray-900 rounded-lg p-4 mb-4">
-            <p className="text-white text-sm mb-2">👋 Hoş geldin</p>
-            <p className="text-green-500 font-semibold">{session?.user?.name}</p>
-            <p className="text-gray-400 text-xs">{session?.user?.email}</p>
-          </div>
-          <button
-            onClick={() => signOut({ callbackUrl: '/' })}
-            className="w-full bg-white text-black hover:bg-gray-200 font-semibold py-2 rounded-full transition"
-          >
-            Çıkış Yap
-          </button>
-        </div>
-      </aside>
+      <Sidebar />
 
       <main className="ml-64 pb-32">
         <div className="bg-gradient-to-b from-purple-900 to-black px-8 py-12">

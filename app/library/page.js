@@ -5,6 +5,9 @@ import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import Player from '@/components/Player'
+import Sidebar from '@/components/Sidebar'
+
+
 
 function LibraryContent() {
   const { data: session, status } = useSession()
@@ -75,6 +78,7 @@ function LibraryContent() {
 
   return (
     <div className="min-h-screen bg-black">
+      <Sidebar/>
       {/* Sidebar */}
       <aside className="fixed left-0 top-0 h-full w-64 bg-black border-r border-gray-800 p-6">
         <div className="flex items-center gap-2 mb-8">
