@@ -1,13 +1,22 @@
 import { NextResponse } from "next/server"
 import prisma from "@/lib/prisma"
 
+const TURKISH_SEARCHES = [
+  'tarkan',
+  'sezen aksu',
+  'ajda pekkan',
+  'müslüm gürses',
+  'barış manço'
+]
+
 export async function POST(request) {
   try {
     const body = await request.json().catch(() => ({}))
-    const limit = body.limit || 20
+    const page = body.page || 0
+    const searchTerm = TURKISH_SEARCHES[page % TURKISH_SEARCHES.length]
 
     const response = await fetch(
-      `https://api.jamendo.com/v3.0/tracks/?client_id=${process.env.JAMENDO_CLIENT_ID}&format=json&limit=${limit}&include=musicinfo&groupby=artist_id`
+      `https://api.jamendo.com/v3.0/tracks/?client_id=${process.env.JAMENDO_CLIENT_ID}&format=json&limit=50&include=musicinfo&groupby=artist_id`
     )
 
     const data = await response.json()
@@ -17,7 +26,6 @@ export async function POST(request) {
     let skipped = 0
 
     for (const track of data.results) {
-      // Sanatçıyı bul veya oluştur
       let artist = await prisma.artist.findFirst({
         where: { name: track.artist_name }
       })
@@ -32,7 +40,6 @@ export async function POST(request) {
         addedArtists++
       }
 
-      // Şarkı zaten var mı kontrol et
       const existingSong = await prisma.song.findFirst({
         where: { 
           title: track.name, 

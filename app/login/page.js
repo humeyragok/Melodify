@@ -1,16 +1,12 @@
 'use client'
 
 import { useState } from 'react'
-import { signIn } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
-import Link from 'next/link'
 
 export default function LoginPage() {
   const router = useRouter()
-  const [formData, setFormData] = useState({
-    email: '',
-    password: ''
-  })
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
 
@@ -20,105 +16,90 @@ export default function LoginPage() {
     setLoading(true)
 
     try {
-      const result = await signIn('credentials', {
-        email: formData.email,
-        password: formData.password,
-        redirect: false,
-        callbackUrl: '/home'
+      const res = await fetch('/api/auth/callback/credentials', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email,
+          password,
+          callbackUrl: '/home'
+        })
       })
 
-      if (result?.error) {
+      if (res.ok) {
+        window.location.href = '/home'
+      } else {
         setError('Email veya şifre hatalı')
-        setLoading(false)
-        return
-      }
-
-      if (result?.ok) {
-        router.push('/home')
-        router.refresh()
       }
     } catch (error) {
-      console.error('Login error:', error)
+      console.error(error)
       setError('Bir hata oluştu')
+    } finally {
       setLoading(false)
     }
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-black via-gray-900 to-black flex items-center justify-center p-6">
-      <div className="w-full max-w-md">
-        {/* Logo */}
+    <div className="min-h-screen bg-black flex items-center justify-center p-4">
+      <div className="max-w-md w-full">
         <div className="text-center mb-8">
-          <Link href="/" className="inline-flex items-center gap-2">
-            <div className="w-12 h-12 bg-green-500 rounded-full flex items-center justify-center">
-              <span className="text-3xl">🎵</span>
-            </div>
-            <h1 className="text-white text-3xl font-bold">Melodify</h1>
-          </Link>
+          <div className="inline-block w-16 h-16 bg-green-500 rounded-full flex items-center justify-center mb-4">
+            <span className="text-4xl">🎵</span>
+          </div>
+          <h1 className="text-white text-4xl font-bold">Melodify</h1>
+          <p className="text-gray-400 mt-2">Müziğe giriş yap</p>
         </div>
 
-        {/* Form */}
-        <div className="bg-black p-8 rounded-lg border border-gray-800">
-          <h2 className="text-white text-3xl font-bold mb-2 text-center">
-            Hoş Geldin
-          </h2>
-          <p className="text-gray-400 text-center mb-8">
-            Hesabına giriş yap ve müziğe devam et
-          </p>
+        <form onSubmit={handleSubmit} className="bg-gray-900 rounded-lg p-8 space-y-6">
+          <div>
+            <label className="block text-sm font-medium text-gray-400 mb-2">
+              Email
+            </label>
+            <input
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:border-green-500"
+              placeholder="email@example.com"
+              required
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-400 mb-2">
+              Şifre
+            </label>
+            <input
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:border-green-500"
+              placeholder="••••••••"
+              required
+            />
+          </div>
 
           {error && (
-            <div className="bg-red-500/10 border border-red-500 text-red-500 p-3 rounded-lg mb-6 text-sm">
+            <div className="bg-red-500/10 border border-red-500 text-red-500 px-4 py-3 rounded-lg">
               {error}
             </div>
           )}
 
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div>
-              <label className="text-white text-sm font-semibold mb-2 block">
-                Email
-              </label>
-              <input
-                type="email"
-                placeholder="ornek@email.com"
-                value={formData.email}
-                onChange={(e) => setFormData({...formData, email: e.target.value})}
-                className="w-full bg-gray-900 text-white border border-gray-700 rounded-lg px-4 py-3 focus:outline-none focus:border-green-500"
-                required
-              />
-            </div>
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full bg-green-500 text-black font-bold py-3 rounded-full hover:bg-green-400 transition disabled:opacity-50"
+          >
+            {loading ? 'Giriş yapılıyor...' : 'Giriş Yap'}
+          </button>
 
-            <div>
-              <label className="text-white text-sm font-semibold mb-2 block">
-                Şifre
-              </label>
-              <input
-                type="password"
-                placeholder="••••••••"
-                value={formData.password}
-                onChange={(e) => setFormData({...formData, password: e.target.value})}
-                className="w-full bg-gray-900 text-white border border-gray-700 rounded-lg px-4 py-3 focus:outline-none focus:border-green-500"
-                required
-              />
-            </div>
-
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full bg-green-500 hover:bg-green-400 text-black font-bold py-3 rounded-full transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {loading ? 'Giriş yapılıyor...' : 'Giriş Yap'}
-            </button>
-          </form>
-
-          <div className="mt-6 text-center">
-            <p className="text-gray-400">
-              Hesabın yok mu?{' '}
-              <Link href="/register" className="text-green-500 hover:underline font-semibold">
-                Kayıt Ol
-              </Link>
-            </p>
-          </div>
-        </div>
+          <p className="text-center text-gray-400 text-sm">
+            Hesabın yok mu?{' '}
+            <a href="/register" className="text-green-500 hover:underline">
+              Kayıt Ol
+            </a>
+          </p>
+        </form>
       </div>
     </div>
   )

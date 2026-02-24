@@ -3,6 +3,8 @@
 import { useState, useEffect } from 'react'
 import { useSession, SessionProvider } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
+import Sidebar from '@/components/Sidebar'
+import Player from '@/components/Player'
 
 function AdminContent() {
   const { data: session, status } = useSession()
@@ -104,6 +106,29 @@ function AdminContent() {
     setLoading(false)
   }
 
+  const handleSeedJamendo = async () => {
+    setLoading(true)
+    setMessage('')
+    try {
+      const res = await fetch('/api/admin/seed', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ limit: 50 })
+      })
+      const data = await res.json()
+      if (data.error) {
+        setMessage('❌ ' + data.error)
+      } else {
+        setMessage(`✅ ${data.addedSongs} şarkı, ${data.addedArtists} sanatçı eklendi!`)
+        fetchSongs()
+        fetchArtists()
+      }
+    } catch (error) {
+      setMessage('❌ Hata oluştu')
+    }
+    setLoading(false)
+  }
+
   if (status === 'loading') {
     return (
       <div className="min-h-screen bg-black flex items-center justify-center">
@@ -114,22 +139,14 @@ function AdminContent() {
 
   return (
     <div className="min-h-screen bg-gray-950 text-white">
-      <header className="bg-black border-b border-gray-800 px-8 py-4 flex justify-between items-center">
-        <div className="flex items-center gap-3">
-          <div className="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center">
-            <span className="text-lg">🎵</span>
-          </div>
-          <h1 className="text-xl font-bold">Melodify Admin</h1>
-        </div>
-        <div className="flex items-center gap-4">
-          <span className="text-gray-400 text-sm">{session?.user?.email}</span>
-          <a href="/home" className="bg-green-500 text-black px-4 py-2 rounded-full text-sm font-semibold hover:bg-green-400 transition">
-            Uygulamaya Dön
-          </a>
-        </div>
-      </header>
+      <Sidebar />
 
-      <div className="max-w-6xl mx-auto p-8">
+      <main className="ml-64 p-8 pb-32">
+        <header className="mb-8">
+          <h1 className="text-3xl font-bold text-white mb-2">Admin Paneli</h1>
+          <p className="text-gray-400">{session?.user?.email}</p>
+        </header>
+
         <div className="grid grid-cols-2 gap-4 mb-8">
           <div className="bg-gray-900 rounded-lg p-6 border border-gray-800">
             <p className="text-gray-400 text-sm mb-1">Toplam Şarkı</p>
@@ -139,6 +156,16 @@ function AdminContent() {
             <p className="text-gray-400 text-sm mb-1">Toplam Sanatçı</p>
             <p className="text-4xl font-bold text-green-500">{artists.length}</p>
           </div>
+        </div>
+
+        <div className="mb-8">
+          <button
+            onClick={handleSeedJamendo}
+            disabled={loading}
+            className="bg-purple-500 text-white px-6 py-3 rounded-full font-semibold hover:bg-purple-400 transition disabled:opacity-50"
+          >
+            {loading ? 'Yükleniyor...' : '🎵 Jamendo\'dan 50 Şarkı Ekle'}
+          </button>
         </div>
 
         <div className="flex gap-4 mb-8">
@@ -338,7 +365,9 @@ function AdminContent() {
             </div>
           </div>
         )}
-      </div>
+      </main>
+
+      <Player />
     </div>
   )
 }
