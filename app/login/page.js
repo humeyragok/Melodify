@@ -23,7 +23,6 @@ export default function LoginPage() {
       setError('Email veya şifre hatalı')
       setLoading(false)
     }
-    // Başarılıysa NextAuth otomatik /home'a yönlendirecek
   }
 
   return (
@@ -44,7 +43,8 @@ export default function LoginPage() {
               type="email"
               value={formData.email}
               onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-              className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:border-green-500"
+              placeholder="ornek@email.com"
+              className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-green-500"
               required
             />
           </div>
@@ -55,7 +55,8 @@ export default function LoginPage() {
               type="password"
               value={formData.password}
               onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-              className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:border-green-500"
+              placeholder="••••••••"
+              className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-green-500"
               required
             />
           </div>
