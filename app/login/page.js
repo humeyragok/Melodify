@@ -1,42 +1,29 @@
 'use client'
 
+import { signIn } from 'next-auth/react'
 import { useState } from 'react'
-import { useRouter } from 'next/navigation'
 
 export default function LoginPage() {
-  const router = useRouter()
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
+  const [formData, setFormData] = useState({ email: '', password: '' })
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
 
   const handleSubmit = async (e) => {
     e.preventDefault()
-    setError('')
     setLoading(true)
+    setError('')
 
-    try {
-      const res = await fetch('/api/auth/callback/credentials', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          email,
-          password,
-          callbackUrl: '/home'
-        })
-      })
+    const result = await signIn('credentials', {
+      email: formData.email,
+      password: formData.password,
+      callbackUrl: '/home',
+    })
 
-      if (res.ok) {
-        window.location.href = '/home'
-      } else {
-        setError('Email veya şifre hatalı')
-      }
-    } catch (error) {
-      console.error(error)
-      setError('Bir hata oluştu')
-    } finally {
+    if (result?.error) {
+      setError('Email veya şifre hatalı')
       setLoading(false)
     }
+    // Başarılıysa NextAuth otomatik /home'a yönlendirecek
   }
 
   return (
@@ -52,29 +39,23 @@ export default function LoginPage() {
 
         <form onSubmit={handleSubmit} className="bg-gray-900 rounded-lg p-8 space-y-6">
           <div>
-            <label className="block text-sm font-medium text-gray-400 mb-2">
-              Email
-            </label>
+            <label className="block text-sm font-medium text-gray-400 mb-2">Email</label>
             <input
               type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              value={formData.email}
+              onChange={(e) => setFormData({ ...formData, email: e.target.value })}
               className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:border-green-500"
-              placeholder="email@example.com"
               required
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-400 mb-2">
-              Şifre
-            </label>
+            <label className="block text-sm font-medium text-gray-400 mb-2">Şifre</label>
             <input
               type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              value={formData.password}
+              onChange={(e) => setFormData({ ...formData, password: e.target.value })}
               className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:border-green-500"
-              placeholder="••••••••"
               required
             />
           </div>
@@ -94,10 +75,7 @@ export default function LoginPage() {
           </button>
 
           <p className="text-center text-gray-400 text-sm">
-            Hesabın yok mu?{' '}
-            <a href="/register" className="text-green-500 hover:underline">
-              Kayıt Ol
-            </a>
+            Hesabın yok mu? <a href="/register" className="text-green-500 hover:underline">Kayıt Ol</a>
           </p>
         </form>
       </div>

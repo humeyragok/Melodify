@@ -13,17 +13,15 @@ export const authOptions = {
       },
       async authorize(credentials) {
         if (!credentials?.email || !credentials?.password) {
-          throw new Error("Email ve şifre gerekli")
+          return null
         }
 
         const user = await prisma.user.findUnique({
-          where: {
-            email: credentials.email
-          }
+          where: { email: credentials.email }
         })
 
         if (!user || !user.password) {
-          throw new Error("Kullanıcı bulunamadı")
+          return null
         }
 
         const isCorrectPassword = await bcrypt.compare(
@@ -32,40 +30,61 @@ export const authOptions = {
         )
 
         if (!isCorrectPassword) {
-          throw new Error("Hatalı şifre")
+          return null
         }
 
         return {
           id: user.id,
           email: user.email,
-          name: user.name,
-          image: user.image
+          name: user.name
         }
       }
     })
   ],
   callbacks: {
+    async signIn() {
+      return true
+    },
+    async redirect({ url, baseUrl }) {
+      // Login başarılı olunca home'a yönlendir
+      if (url === baseUrl) {
+        return `${baseUrl}/home`
+      }
+      // Relative URL'leri handle et
+      if (url.startsWith("/")) {
+        return `${baseUrl}${url}`
+      }
+      // Aynı origin'deyse izin ver
+      if (new URL(url).origin === baseUrl) {
+        return url
+      }
+      return baseUrl
+    },
     async jwt({ token, user }) {
       if (user) {
         token.id = user.id
+        token.email = user.email
+        token.name = user.name
       }
       return token
     },
     async session({ session, token }) {
-      if (session?.user) {
+      if (token && session.user) {
         session.user.id = token.id
+        session.user.email = token.email
+        session.user.name = token.name
       }
       return session
     }
   },
+  pages: {
+    signIn: '/login',
+  },
   session: {
     strategy: "jwt",
-    maxAge: 30 * 24 * 60 * 60
+    maxAge: 30 * 24 * 60 * 60,
   },
-  pages: {
-    signIn: "/login"
-  },
-  secret: process.env.NEXTAUTH_SECRET
+  secret: process.env.NEXTAUTH_SECRET,
 }
 
 const handler = NextAuth(authOptions)
