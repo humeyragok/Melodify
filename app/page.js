@@ -1,9 +1,30 @@
+'use client'
+
+import { useSession } from 'next-auth/react'
+import { useRouter } from 'next/navigation'
+import { useEffect } from 'react'
 import Link from 'next/link'
 
 export default function Home() {
+  const { data: session, status } = useSession()
+  const router = useRouter()
+
+  useEffect(() => {
+    if (status === 'authenticated') {
+      router.push('/home')
+    }
+  }, [status, router])
+
+  if (status === 'loading') {
+    return (
+      <div className="min-h-screen bg-black flex items-center justify-center">
+        <div className="text-white text-xl">Yükleniyor...</div>
+      </div>
+    )
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-black via-gray-900 to-black">
-      {/* Header */}
       <header className="p-6 flex justify-between items-center">
         <div className="flex items-center gap-2">
           <div className="w-10 h-10 bg-green-500 rounded-full flex items-center justify-center">
@@ -27,7 +48,6 @@ export default function Home() {
         </div>
       </header>
 
-      {/* Hero Section */}
       <main className="container mx-auto px-6 py-20">
         <div className="text-center max-w-4xl mx-auto">
           <h2 className="text-6xl md:text-8xl font-bold text-white mb-6">
@@ -47,7 +67,6 @@ export default function Home() {
           </Link>
         </div>
 
-        {/* Features */}
         <div className="grid md:grid-cols-3 gap-8 mt-32">
           <div className="text-center p-8 bg-gray-900 rounded-lg">
             <div className="text-5xl mb-4">🎧</div>
@@ -58,7 +77,6 @@ export default function Home() {
               Favori şarkılarını dinle, yeni müzikler keşfet
             </p>
           </div>
-
           <div className="text-center p-8 bg-gray-900 rounded-lg">
             <div className="text-5xl mb-4">📱</div>
             <h3 className="text-white text-2xl font-bold mb-3">
@@ -68,7 +86,6 @@ export default function Home() {
               Telefon, tablet, bilgisayar - istediğin yerden
             </p>
           </div>
-
           <div className="text-center p-8 bg-gray-900 rounded-lg">
             <div className="text-5xl mb-4">🎵</div>
             <h3 className="text-white text-2xl font-bold mb-3">
@@ -80,7 +97,6 @@ export default function Home() {
           </div>
         </div>
 
-        {/* Popular Genres */}
         <div className="mt-32">
           <h3 className="text-white text-3xl font-bold mb-8">
             Popüler Türler
@@ -98,7 +114,6 @@ export default function Home() {
         </div>
       </main>
 
-      {/* Footer */}
       <footer className="border-t border-gray-800 mt-32 py-12">
         <div className="container mx-auto px-6 text-center text-gray-500">
           <p>&copy; 2024 Melodify. Tüm hakları saklıdır.</p>
