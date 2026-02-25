@@ -10,7 +10,7 @@ export default function Sidebar() {
   const isActive = (path) => pathname === path
 
   return (
-    <aside className="fixed left-0 top-0 h-full w-64 bg-black border-r border-gray-800 p-6">
+    <aside className="fixed left-0 top-0 h-full w-64 bg-black border-r border-gray-800 p-6 flex flex-col">
       <div className="flex items-center gap-2 mb-8">
         <div className="w-10 h-10 bg-green-500 rounded-full flex items-center justify-center">
           <span className="text-2xl">🎵</span>
@@ -18,7 +18,7 @@ export default function Sidebar() {
         <h1 className="text-white text-2xl font-bold">Melodify</h1>
       </div>
 
-      <nav className="space-y-4">
+      <nav className="space-y-4 flex-1">
         <a 
           href="/home" 
           className={`flex items-center gap-3 transition ${
@@ -66,11 +66,11 @@ export default function Sidebar() {
         </a>
       </nav>
 
-      <div className="absolute bottom-6 left-6 right-6">
+      <div className="mb-32">
         <div className="bg-gray-900 rounded-lg p-4 mb-4">
           <p className="text-white text-sm mb-2">👋 Hoş geldin</p>
-          <p className="text-green-500 font-semibold">{session?.user?.name}</p>
-          <p className="text-gray-400 text-xs">{session?.user?.email}</p>
+          <p className="text-green-500 font-semibold truncate">{session?.user?.name}</p>
+          <p className="text-gray-400 text-xs truncate">{session?.user?.email}</p>
         </div>
         <button
           onClick={() => signOut({ callbackUrl: '/' })}
