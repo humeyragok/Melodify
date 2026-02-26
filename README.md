@@ -7,6 +7,8 @@ Modern, tam özellikli bir müzik streaming uygulaması. Next.js 14, Prisma, Pos
 ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-Docker-336791?style=flat-square&logo=postgresql)
 ![TailwindCSS](https://img.shields.io/badge/TailwindCSS-3.4-38B2AC?style=flat-square&logo=tailwind-css)
 
+## Projemi bu bağlantıdan deneyebilirsiniz https://melodify-seven.vercel.app
+
 ## ✨ Özellikler
 
 ###  Müzik Oynatma
